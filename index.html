@@ -578,6 +578,13 @@ audio.addEventListener('loadedmetadata', () => {
   document.getElementById('t-dur').textContent = fmt(audio.duration);
 });
 
+if ('mediaSession' in navigator) {
+  navigator.mediaSession.setActionHandler('play', () => audio.play());
+  navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+  navigator.mediaSession.setActionHandler('seekbackward', () => seekBy(-15));
+  navigator.mediaSession.setActionHandler('seekforward', () => seekBy(15));
+}
+
 async function fetchStreams(videoId) {
   for (const base of PIPED_INSTANCES) {
     try {
@@ -615,6 +622,14 @@ async function loadAudio(urlOverride) {
   document.getElementById('track-title').textContent = data.title || 'Unknown';
   document.getElementById('track-channel').textContent = data.uploader || '';
   if (data.thumbnailUrl) document.getElementById('thumb').src = data.thumbnailUrl;
+
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: data.title || 'Unknown',
+      artist: data.uploader || '',
+      artwork: data.thumbnailUrl ? [{ src: data.thumbnailUrl, type: 'image/jpeg' }] : []
+    });
+  }
 
   audio.src = best.url;
   audio.load();
