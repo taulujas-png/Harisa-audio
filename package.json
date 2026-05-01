@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/taulujas-png/Harisa-audio#readme",
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.12"
+    "@distube/ytdl-core": "^4.16.12",
+    "play-dl": "^1.9.7"
   }
 }

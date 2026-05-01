@@ -1,4 +1,4 @@
-const ytdl = require('@distube/ytdl-core');
+const play = require('play-dl');
 
 const COBALT_INSTANCES = [
   'https://api.cobalt.tools',
@@ -110,24 +110,24 @@ export default async function handler(req, res) {
     } catch (e) { /* ignore and try next */ }
   }
 
-  // 4. Fallback: ytdl-core (Запасной вариант на сервере)
+  // 4. Fallback: play-dl (Запасной вариант на сервере)
   try {
-    const info = await ytdl.getInfo(youtubeUrl);
-    const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+    const info = await play.video_info(youtubeUrl);
+    const audioFormats = info.format.filter(f => f.mimeType && f.mimeType.startsWith('audio/'));
     if (audioFormats.length > 0) {
-      const best = audioFormats.sort((a, b) => b.audioBitrate - a.audioBitrate).find(f => f.container === 'mp4') || audioFormats[0];
+      const best = audioFormats.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0)).find(f => f.mimeType.includes('mp4')) || audioFormats[0];
       return res.status(200).json({
-        provider: 'ytdl-core',
-        title: info.videoDetails.title,
-        uploader: info.videoDetails.author.name,
-        thumbnailUrl: info.videoDetails.thumbnails[info.videoDetails.thumbnails.length - 1]?.url,
+        provider: 'play-dl',
+        title: info.video_details.title,
+        uploader: info.video_details.channel?.name || 'Unknown',
+        thumbnailUrl: info.video_details.thumbnails[info.video_details.thumbnails.length - 1]?.url,
         url: best.url,
         mimeType: best.mimeType,
-        bitrate: best.audioBitrate * 1000
+        bitrate: best.bitrate || 128000
       });
     }
   } catch (error) {
-    console.error('ytdl-core error:', error);
+    console.error('play-dl error:', error);
   }
 
   // Если всё упало
