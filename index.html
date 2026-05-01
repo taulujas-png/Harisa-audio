@@ -409,7 +409,7 @@ input.vol::-webkit-slider-thumb {
     <span class="logo-main">harisa</span>
     <span class="logo-sub">audio</span>
   </div>
-  <div class="tagline">слушай арабский контент в фоне</div>
+  <div class="tagline">слушай арабский контент в фоне <span style="opacity:0.3; margin-left:4px;">v1.3</span></div>
 </div>
 
 <div class="card">
@@ -696,7 +696,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Service Worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js?v=5').then(reg => {
+    reg.update();
+  }).catch(() => {});
 }
 </script>
 </body>
