@@ -488,12 +488,23 @@ input.vol::-webkit-slider-thumb {
 <audio id="audio" preload="none" playsinline></audio>
 
 <script>
-const PIPED_INSTANCES = [
+let PIPED_INSTANCES = [
+  'https://api.piped.private.coffee',
   'https://pipedapi.kavin.rocks',
-  'https://piped-api.garudalinux.org',
-  'https://api.piped.projectsegfau.lt',
-  'https://pipedapi.in.projectsegfau.lt',
+  'https://pipedapi.tokhmi.xyz',
+  'https://pipedapi.syncpundit.io'
 ];
+
+// Пытаемся получить свежий список серверов Piped
+fetch('https://piped-instances.kavin.rocks/')
+  .then(r => r.json())
+  .then(list => {
+    if (list && list.length) {
+      const activeUrls = list.map(i => i.api_url);
+      PIPED_INSTANCES = [...new Set([...activeUrls, ...PIPED_INSTANCES])];
+    }
+  })
+  .catch(() => {});
 
 const audio = document.getElementById('audio');
 
