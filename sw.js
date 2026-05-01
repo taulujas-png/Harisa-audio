@@ -1,5 +1,5 @@
-const CACHE = 'harisa-audio-v5';
-const BASE = '/Harisa-audio/';
+const CACHE = 'harisa-audio-v6';
+const BASE = '/';
 const ASSETS = [BASE, BASE + 'index.html', BASE + 'manifest.json'];
 
 self.addEventListener('install', e => {

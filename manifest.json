@@ -2,7 +2,7 @@
   "name": "Harisa Audio",
   "short_name": "Harisa Audio",
   "description": "Слушай YouTube аудио в фоне",
-  "start_url": "./",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#f0f4ff",
   "theme_color": "#2563eb",
@@ -22,7 +22,7 @@
     }
   ],
   "share_target": {
-    "action": "./",
+    "action": "/",
     "method": "GET",
     "enctype": "application/x-www-form-urlencoded",
     "params": {
