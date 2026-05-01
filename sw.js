@@ -1,4 +1,4 @@
-const CACHE = 'harisa-audio-v4';
+const CACHE = 'harisa-audio-v5';
 const BASE = '/Harisa-audio/';
 const ASSETS = [BASE, BASE + 'index.html', BASE + 'manifest.json'];
 
