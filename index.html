@@ -409,7 +409,7 @@ input.vol::-webkit-slider-thumb {
     <span class="logo-main">harisa</span>
     <span class="logo-sub">audio</span>
   </div>
-  <div class="tagline">слушай арабский контент в фоне <span style="opacity:0.3; margin-left:4px;">v1.3</span></div>
+  <div class="tagline">слушай арабский контент в фоне <span style="opacity:0.3; margin-left:4px;">v1.4</span></div>
 </div>
 
 <div class="card">
@@ -586,14 +586,47 @@ if ('mediaSession' in navigator) {
 }
 
 async function fetchStreams(videoId) {
+  // Сначала пробуем Piped
   for (const base of PIPED_INSTANCES) {
     try {
-      const res = await fetch(`${base}/streams/${videoId}`, { signal: AbortSignal.timeout(7000) });
+      const res = await fetch(`${base}/streams/${videoId}`, { signal: AbortSignal.timeout(6000) });
       if (!res.ok) continue;
       const data = await res.json();
       if (data?.audioStreams?.length) return data;
     } catch {}
   }
+  
+  // Fallback на Invidious
+  const INVIDIOUS_INSTANCES = [
+    'https://vid.puffyan.us',
+    'https://invidious.projectsegfau.lt',
+    'https://yt.artemislena.eu'
+  ];
+  
+  for (const base of INVIDIOUS_INSTANCES) {
+    try {
+      const res = await fetch(`${base}/api/v1/videos/${videoId}`, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data?.adaptiveFormats?.length) {
+        // Конвертируем ответ Invidious в формат, похожий на Piped
+        const audioStreams = data.adaptiveFormats.filter(f => f.type && f.type.startsWith('audio'));
+        if (audioStreams.length > 0) {
+          return {
+            title: data.title,
+            uploader: data.author,
+            thumbnailUrl: data.videoThumbnails?.find(t => t.quality === 'maxresdefault' || t.quality === 'high')?.url,
+            audioStreams: audioStreams.map(s => ({
+              url: s.url,
+              bitrate: parseInt(s.bitrate || '0'),
+              mimeType: s.type
+            }))
+          };
+        }
+      }
+    } catch {}
+  }
+  
   return null;
 }
 
