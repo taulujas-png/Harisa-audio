@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Harisa Audio">
+<link rel="manifest" href="manifest.json">
+<title>Harisa Audio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --blue-mid: #dbeafe;
+  --blue-dark: #1d4ed8;
+  --text: #1e293b;
+  --muted: #94a3b8;
+  --bg: #f0f4ff;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --success: #22c55e;
+  --error: #ef4444;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  gap: 28px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.logo-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.logo-main {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--blue);
+  letter-spacing: -0.5px;
+}
+.logo-sub {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.tagline {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.08), 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Input */
+.input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.input-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.input-row {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--blue-light);
+  transition: border-color 0.2s;
+}
+.input-row:focus-within {
+  border-color: var(--blue);
+  background: #fff;
+}
+input[type="text"] {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 13px 14px;
+}
+input::placeholder { color: var(--muted); font-weight: 400; }
+
+.go-btn {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 13px 20px;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+  white-space: nowrap;
+  border-radius: 0 10px 10px 0;
+}
+.go-btn:active { background: var(--blue-dark); }
+.go-btn:disabled { background: var(--muted); cursor: not-allowed; }
+
+/* Status */
+.status {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  text-align: center;
+  min-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.status.error { color: var(--error); }
+.status.ok { color: var(--success); }
+
+/* Player */
+.player {
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+.player.visible { display: flex; }
+
+.track-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--blue-mid);
+  flex-shrink: 0;
+  display: none;
+}
+.track-info { flex: 1; overflow: hidden; }
+.track-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.track-channel {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Wave */
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  margin-top: 6px;
+}
+.wave-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--blue);
+  animation: wv 1.1s ease-in-out infinite;
+  opacity: 0.6;
+}
+.wave-bar:nth-child(1){height:5px;animation-delay:0s}
+.wave-bar:nth-child(2){height:12px;animation-delay:.15s}
+.wave-bar:nth-child(3){height:18px;animation-delay:.3s}
+.wave-bar:nth-child(4){height:9px;animation-delay:.45s}
+.wave-bar:nth-child(5){height:14px;animation-delay:.6s}
+.wave-bar:nth-child(6){height:7px;animation-delay:.75s}
+.wave.paused .wave-bar { animation-play-state: paused; opacity: 0.3; }
+@keyframes wv { 0%,100%{transform:scaleY(0.35)}50%{transform:scaleY(1)} }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); }
+
+/* Progress */
+.progress-wrap { display: flex; flex-direction: column; gap: 6px; }
+.seek-track {
+  position: relative;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+.seek-bg {
+  position: absolute;
+  left: 0; right: 0;
+  height: 4px;
+  background: var(--blue-mid);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.seek-fill {
+  height: 100%;
+  background: var(--blue);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.3s linear;
+}
+input.seek {
+  position: absolute;
+  left: 0; right: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+}
+.seek-thumb {
+  position: absolute;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.2);
+  pointer-events: none;
+  left: 0;
+  transform: translateX(-50%);
+}
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Controls */
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.btn-play {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--blue);
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(37,99,235,0.35);
+  transition: transform 0.12s, background 0.12s;
+  flex-shrink: 0;
+}
+.btn-play:active { transform: scale(0.92); background: var(--blue-dark); }
+.btn-play svg { fill: white; }
+
+.btn-sk {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--blue-light);
+  border: 1.5px solid var(--blue-mid);
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1px;
+  transition: background 0.12s;
+}
+.btn-sk:active { background: var(--blue-mid); }
+.btn-sk svg { fill: var(--blue); }
+.btn-sk small { font-size: 8px; color: var(--blue); font-weight: 600; line-height: 1; }
+
+/* Volume */
+.vol-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.vol-row svg { fill: var(--muted); flex-shrink: 0; }
+input.vol {
+  -webkit-appearance: none;
+  flex: 1; height: 3px;
+  background: var(--blue-mid);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+input.vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--blue);
+  cursor: pointer;
+}
+
+/* Hint */
+.hint {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.7;
+  background: var(--blue-light);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.hint b { color: var(--blue); font-weight: 600; }
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 2px solid var(--blue-mid);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* PWA Install Button */
+.install-btn {
+  display: none;
+  width: 100%;
+  max-width: 400px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--card);
+  color: var(--blue);
+  border: 2px solid var(--blue);
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.12);
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  animation: installPulse 2.5s ease-in-out infinite;
+}
+.install-btn.show { display: flex; }
+.install-btn:active {
+  transform: scale(0.97);
+  background: var(--blue-light);
+}
+.install-btn svg { fill: var(--blue); flex-shrink: 0; }
+.install-btn-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.install-btn-title { font-size: 15px; font-weight: 700; color: var(--blue); line-height: 1; }
+.install-btn-sub { font-size: 11px; font-weight: 400; color: var(--muted); line-height: 1; }
+
+@keyframes installPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(37,99,235,0.12); }
+  50% { box-shadow: 0 4px 28px rgba(37,99,235,0.28); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-row">
+    <span class="logo-main">harisa</span>
+    <span class="logo-sub">audio</span>
+  </div>
+  <div class="tagline">слушай арабский контент в фоне</div>
+</div>
+
+<div class="card">
+  <div class="input-wrap">
+    <div class="input-label">Ссылка на YouTube</div>
+    <div class="input-row">
+      <input type="text" id="url-input" placeholder="youtu.be/... или youtube.com/watch?v=..." autocomplete="off" />
+      <button class="go-btn" id="go-btn" onclick="loadAudio()">GO</button>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="player" id="player">
+    <div class="track-row">
+      <img class="thumb" id="thumb" src="" alt="" onload="this.style.display='block'" />
+      <div class="track-info">
+        <div class="track-title" id="track-title">—</div>
+        <div class="track-channel" id="track-channel"></div>
+        <div class="wave paused" id="wave">
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="progress-wrap">
+      <div class="seek-track">
+        <div class="seek-bg"><div class="seek-fill" id="seek-fill"></div></div>
+        <input type="range" class="seek" id="seek" value="0" min="0" max="100" step="0.1" oninput="onSeek(this.value)" />
+        <div class="seek-thumb" id="seek-thumb"></div>
+      </div>
+      <div class="time-row">
+        <span id="t-cur">0:00</span>
+        <span id="t-dur">0:00</span>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <button class="btn-sk" onclick="seekBy(-15)">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        <small>15</small>
+      </button>
+      <button class="btn-play" id="play-btn" onclick="togglePlay()">
+        <svg id="play-icon" width="26" height="26" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="btn-sk" onclick="seekBy(15)">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/></svg>
+        <small>15</small>
+      </button>
+    </div>
+
+    <div class="vol-row">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+      <input type="range" class="vol" min="0" max="1" step="0.02" value="1" oninput="audio.volume=this.value" />
+      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </div>
+
+    <div class="hint">
+      <b>Android:</b> блокируй экран — аудио продолжится<br>
+      <b>iOS Safari:</b> не закрывай браузер, только экран
+    </div>
+  </div>
+</div>
+
+<button class="install-btn" id="install-btn" onclick="installPWA()">
+  <svg width="22" height="22" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+  <div class="install-btn-text">
+    <span class="install-btn-title">Установить приложение</span>
+    <span class="install-btn-sub">Harisa Audio · на рабочий стол</span>
+  </div>
+</button>
+
+<audio id="audio" preload="none" playsinline></audio>
+
+<script>
+const PIPED_INSTANCES = [
+  'https://pipedapi.kavin.rocks',
+  'https://piped-api.garudalinux.org',
+  'https://api.piped.projectsegfau.lt',
+  'https://pipedapi.in.projectsegfau.lt',
+];
+
+const audio = document.getElementById('audio');
+
+// --- Web Share Target: читаем URL из параметров ---
+function getSharedUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('url') || params.get('text') || params.get('title') || '';
+}
+
+function extractVideoId(url) {
+  url = (url || '').trim();
+  const patterns = [
+    /(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function setStatus(html, type = '') {
+  const el = document.getElementById('status');
+  el.innerHTML = html;
+  el.className = 'status ' + type;
+}
+
+function fmt(s) {
+  if (!s || isNaN(s)) return '0:00';
+  return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
+}
+
+function updateProgress() {
+  if (!audio.duration) return;
+  const pct = (audio.currentTime / audio.duration) * 100;
+  document.getElementById('seek').value = pct;
+  document.getElementById('seek-fill').style.width = pct + '%';
+  document.getElementById('seek-thumb').style.left = pct + '%';
+  document.getElementById('t-cur').textContent = fmt(audio.currentTime);
+}
+
+function setPlaying(val) {
+  const icon = document.getElementById('play-icon');
+  const wave = document.getElementById('wave');
+  icon.innerHTML = val
+    ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+    : '<path d="M8 5v14l11-7z"/>';
+  wave.classList.toggle('paused', !val);
+}
+
+function togglePlay() {
+  if (!audio.src) return;
+  audio.paused ? audio.play() : audio.pause();
+}
+
+function seekBy(sec) {
+  if (audio.duration) audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + sec));
+}
+
+function onSeek(val) {
+  if (audio.duration) audio.currentTime = (val / 100) * audio.duration;
+}
+
+audio.addEventListener('play', () => setPlaying(true));
+audio.addEventListener('pause', () => setPlaying(false));
+audio.addEventListener('ended', () => setPlaying(false));
+audio.addEventListener('timeupdate', updateProgress);
+audio.addEventListener('loadedmetadata', () => {
+  document.getElementById('t-dur').textContent = fmt(audio.duration);
+});
+
+async function fetchStreams(videoId) {
+  for (const base of PIPED_INSTANCES) {
+    try {
+      const res = await fetch(`${base}/streams/${videoId}`, { signal: AbortSignal.timeout(7000) });
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (data?.audioStreams?.length) return data;
+    } catch {}
+  }
+  return null;
+}
+
+function pickBestAudio(streams) {
+  const sorted = [...streams].sort((a, b) => (b.bitrate||0) - (a.bitrate||0));
+  return sorted.find(s => s.mimeType?.includes('mp4')) || sorted[0];
+}
+
+async function loadAudio(urlOverride) {
+  const url = urlOverride || document.getElementById('url-input').value;
+  const videoId = extractVideoId(url);
+  if (!videoId) { setStatus('⚠ не могу распознать ссылку', 'error'); return; }
+
+  const btn = document.getElementById('go-btn');
+  btn.disabled = true;
+  setStatus('<span class="spinner"></span> получаю аудиопоток...', '');
+
+  const data = await fetchStreams(videoId);
+  if (!data) {
+    setStatus('✕ Piped недоступен. Попробуй позже.', 'error');
+    btn.disabled = false;
+    return;
+  }
+
+  const best = pickBestAudio(data.audioStreams);
+  document.getElementById('track-title').textContent = data.title || 'Unknown';
+  document.getElementById('track-channel').textContent = data.uploader || '';
+  if (data.thumbnailUrl) document.getElementById('thumb').src = data.thumbnailUrl;
+
+  audio.src = best.url;
+  audio.load();
+
+  document.getElementById('player').classList.add('visible');
+
+  try {
+    await audio.play();
+    const kbps = best.bitrate ? Math.round(best.bitrate/1000) + 'kbps' : '';
+    setStatus(`✓ ${best.mimeType?.split(';')[0] || 'audio'} ${kbps}`, 'ok');
+  } catch {
+    setStatus('▶ нажми Play', '');
+  }
+
+  btn.disabled = false;
+}
+
+// Enter
+document.getElementById('url-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadAudio();
+});
+
+// --- PWA Install ---
+let deferredPrompt = null;
+const installBtn = document.getElementById('install-btn');
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+  || window.navigator.standalone === true;
+
+// Показываем кнопку только не в PWA режиме
+if (!isStandalone) {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.add('show');
+  });
+}
+
+async function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') {
+    installBtn.classList.remove('show');
+  }
+  deferredPrompt = null;
+}
+
+window.addEventListener('appinstalled', () => {
+  installBtn.classList.remove('show');
+  deferredPrompt = null;
+});
+
+// --- PWA Share Target ---
+window.addEventListener('DOMContentLoaded', () => {
+  const shared = getSharedUrl();
+  if (shared && extractVideoId(shared)) {
+    document.getElementById('url-input').value = shared;
+    loadAudio(shared);
+  }
+});
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
