@@ -619,14 +619,17 @@ async function loadAudio(urlOverride) {
   }
 
   const best = pickBestAudio(data.audioStreams);
+  
+  const channelName = data.uploader ? `${data.uploader} (harisa audio)` : '(harisa audio)';
+  
   document.getElementById('track-title').textContent = data.title || 'Unknown';
-  document.getElementById('track-channel').textContent = data.uploader || '';
+  document.getElementById('track-channel').textContent = channelName;
   if (data.thumbnailUrl) document.getElementById('thumb').src = data.thumbnailUrl;
 
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: data.title || 'Unknown',
-      artist: data.uploader || '',
+      artist: channelName,
       artwork: data.thumbnailUrl ? [{ src: data.thumbnailUrl, type: 'image/jpeg' }] : []
     });
   }
